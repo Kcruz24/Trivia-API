@@ -46,6 +46,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['all_categories'])
         self.assertTrue(len(data['categories']))
 
+    def test_404_categories(self):
+        res = self.client().get('/categorie')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Resource not found')
+
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
