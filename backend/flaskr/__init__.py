@@ -28,8 +28,6 @@ def create_app(test_config=None):
         res.headers.add("Access-Control-Allow-Methods",
                         'GET, POST, PATCH, DELETE, OPTIONS')
 
-    # res.headers.add("Access-Control-Allow-Origin", "*")
-
     # @TODO: Create an endpoint to handle GET requests for all available
     #        categories.
 
