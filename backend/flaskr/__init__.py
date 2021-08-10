@@ -20,6 +20,10 @@ def paginate_questions(req, questions):
     return current_questions
 
 
+def format_categories(categories):
+    return [question.format() for question in categories]
+
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
