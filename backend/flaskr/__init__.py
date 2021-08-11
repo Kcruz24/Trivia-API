@@ -62,6 +62,20 @@ def create_app(test_config=None):
     #        pagination (every 10 questions).
     #        This endpoint should return a list of questions,
     #        number of total questions, current category, categories.
+    #        (Partially DONE)
+    @app.route('/questions')
+    def get_questions():
+        questions = Question.query.all()
+        categories = Category.query.all()
+        current_questions = paginate_questions(request, questions)
+        formatted_categories = format_categories(categories)
+
+        return jsonify({
+            'success': True,
+            'total_questions': len(questions),
+            'questions': current_questions,
+            'categories': formatted_categories
+        })
 
     # TEST: At this point, when you start the application
     # you should see questions and categories generated,
