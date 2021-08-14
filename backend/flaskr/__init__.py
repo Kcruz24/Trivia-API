@@ -65,10 +65,10 @@ def create_app(test_config=None):
     #        (DONE)
     @app.route('/questions')
     def get_questions():
-        questions = Question.query.all()
-        categories = Category.query.all()
+        questions = Question.query.order_by(Question.id).all()
+        categories = Category.query.order_by(Category.id).all()
         current_questions = paginate_questions(request, questions)
-        formatted_categories = [category.format() for category in categories]
+        formatted_categories = format_categories(categories)
 
         return jsonify({
             'success': True,
