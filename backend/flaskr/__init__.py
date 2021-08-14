@@ -68,13 +68,14 @@ def create_app(test_config=None):
         questions = Question.query.all()
         categories = Category.query.all()
         current_questions = paginate_questions(request, questions)
-        formatted_categories = format_categories(categories)
+        formatted_categories = [category.format() for category in categories]
 
         return jsonify({
             'success': True,
             'total_questions': len(questions),
             'questions': current_questions,
-            'categories': formatted_categories
+            'categories': formatted_categories,
+            'current_category': None
         })
 
     # TEST: At this point, when you start the application
