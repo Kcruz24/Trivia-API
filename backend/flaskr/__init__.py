@@ -21,7 +21,7 @@ def paginate_questions(req, questions):
 
 
 def format_categories(categories):
-    return [question.format() for question in categories]
+    return {cat.id: cat.type for cat in categories}
 
 
 def create_app(test_config=None):
@@ -62,7 +62,7 @@ def create_app(test_config=None):
     #        pagination (every 10 questions).
     #        This endpoint should return a list of questions,
     #        number of total questions, current category, categories.
-    #        (Partially DONE)
+    #        (DONE)
     @app.route('/questions')
     def get_questions():
         questions = Question.query.all()
