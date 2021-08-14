@@ -50,6 +50,10 @@ def create_app(test_config=None):
     @app.route('/categories')
     def get_categories():
         categories = Category.query.order_by(Category.id).all()
+
+        if len(categories) == 0:
+            abort(404)
+
         formatted_categories = format_categories(categories)
 
         return jsonify({
