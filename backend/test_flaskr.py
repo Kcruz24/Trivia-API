@@ -24,6 +24,13 @@ class TriviaTestCase(unittest.TestCase):
                     self.database_name)
         setup_db(self.app, self.database_path)
 
+        self.new_question = {
+            'question': 'What is my gaming nickname?',
+            'answer': 'Kakin Blu',
+            'category': 5,
+            'difficulty': 3
+        }
+
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
