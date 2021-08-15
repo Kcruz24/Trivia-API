@@ -140,4 +140,12 @@ def create_app(test_config=None):
             'message': 'Resource not found'
         }), 404
 
+    @app.errorhandler(422)
+    def unprocessable_entity(error):
+        return jsonify({
+            'success': False,
+            'error': 422,
+            'message': 'Unprocessable Entity'
+        }), 422
+
     return app
