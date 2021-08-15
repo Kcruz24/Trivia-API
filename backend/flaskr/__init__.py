@@ -70,9 +70,8 @@ def create_app(test_config=None):
     @app.route('/questions')
     def get_questions():
         questions = Question.query.order_by(Question.id).all()
-        categories = Category.query.order_by(Category.id).all()
 
-        if len(questions) or len(categories) == 0:
+        if len(questions) == 0:
             abort(404)
 
         current_questions = paginate_questions(request, questions)
