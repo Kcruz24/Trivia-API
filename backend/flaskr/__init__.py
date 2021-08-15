@@ -92,7 +92,25 @@ def create_app(test_config=None):
     # screen for three pages. Clicking on the page numbers should update
     # the questions.
 
-    # @TODO: Create an endpoint to DELETE question using a question ID.
+    # @TODO: Create an endpoint to DELETE question using a question ID. (DONE)
+    @app.route('/questions/<int:question_id>', methods=['DELETE'])
+    def delete_question(question_id):
+        try:
+            question = Question.query.get_or_404(question_id)
+            question_id = question.id
+            question.delete()
+
+            questions = Question.query.order_by(Question.id).all()
+            formatted_questions = paginate_questions(request, questions)
+
+            return jsonify({
+                'success': True,
+                'deleted': question_id,
+                'questions': formatted_questions,
+                'total_questions': len(questions)
+            })
+        except:
+            abort(422)
 
     # TEST: When you click the trash icon next to a question, the question will
     #       be removed. This removal will persist in the database and
