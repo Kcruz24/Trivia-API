@@ -130,7 +130,7 @@ def create_app(test_config=None):
     # and shown whether they were correct or not.
 
     # @TODO: Create error handlers for all expected errors
-    #        including 404 and 422.
+    #        including 404 and 422. (DONE)
 
     @app.errorhandler(404)
     def not_found(error):
@@ -147,5 +147,13 @@ def create_app(test_config=None):
             'error': 422,
             'message': 'Unprocessable Entity'
         }), 422
+
+    @app.errorhandler(405)
+    def unprocessable_entity(error):
+        return jsonify({
+            'success': False,
+            'error': 422,
+            'message': 'Method Not Allowed'
+        }), 405
 
     return app
