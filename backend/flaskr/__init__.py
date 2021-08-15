@@ -74,6 +74,7 @@ def create_app(test_config=None):
         if len(questions) == 0:
             abort(404)
 
+        categories = Category.query.order_by(Category.id).all()
         current_questions = paginate_questions(request, questions)
         formatted_categories = format_categories(categories)
 
