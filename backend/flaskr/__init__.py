@@ -127,23 +127,37 @@ def create_app(test_config=None):
         get_answer = body.get('answer', None)
         get_difficulty = body.get('difficulty', None)
         get_category = body.get('category', None)
+        search = body.get('searchTerm', None)
 
         try:
-            new_question = Question(question=get_question,
-                                    answer=get_answer,
-                                    category=get_category,
-                                    difficulty=get_difficulty)
-            new_question.insert()
+            if search:
+                questions = Question.query.order_by(Question.id) \
+                    .filter(Question.question.ilike(f'%{search}%')) \
+                    .all()
+                current_questions = paginate_questions(request, questions)
 
-            questions = Question.query.order_by(Question.id).all()
-            current_questions = paginate_questions(request, questions)
+                return jsonify({
+                    'success': True,
+                    'questions': current_questions,
+                    'total_questions': len(questions)
+                })
 
-            return jsonify({
-                'success': True,
-                'created': new_question.id,
-                'questions': current_questions,
-                'total_questions': len(questions)
-            })
+            else:
+                new_question = Question(question=get_question,
+                                        answer=get_answer,
+                                        category=get_category,
+                                        difficulty=get_difficulty)
+                new_question.insert()
+
+                questions = Question.query.order_by(Question.id).all()
+                current_questions = paginate_questions(request, questions)
+
+                return jsonify({
+                    'success': True,
+                    'created': new_question.id,
+                    'questions': current_questions,
+                    'total_questions': len(questions)
+                })
 
         except():
             abort(422)
@@ -154,7 +168,7 @@ def create_app(test_config=None):
 
     # @TODO: Create a POST endpoint to get questions based on a search term.
     #        It should return any questions for whom the search term
-    #        is a substring of the question.
+    #        is a substring of the question. (DONE)
 
     # TEST: Search by any phrase. The questions list will update to include
     # only question that include that string within their question.
