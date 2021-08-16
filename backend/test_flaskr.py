@@ -74,7 +74,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['categories']))
         self.assertTrue(data['total_questions'])
 
-    def test_404_get_questions(self):
+    def test_404_if_get_questions_does_not_exist(self):
         res = self.client().get('/question')
         data = json.loads(res.data)
 
