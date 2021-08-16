@@ -174,7 +174,26 @@ def create_app(test_config=None):
     # only question that include that string within their question.
     # Try using the word "title" to start.
 
-    # @TODO: Create a GET endpoint to get questions based on category.
+    # @TODO: Create a GET endpoint to get questions based on category. (DONE)
+    @app.route('/categories/<int:category_id>/questions')
+    def test_get_questions_based_on_category(category_id):
+        questions = Question.query \
+            .order_by(Question.id) \
+            .filter(Question.category == category_id) \
+            .all()
+
+        if len(questions) == 0:
+            abort(404)
+
+        current_questions = paginate_questions(request, questions)
+        current_category = Category.query.get(category_id).type
+
+        return jsonify({
+            'success': True,
+            'questions': current_questions,
+            'total_questions': len(questions),
+            'current_category': current_category
+        })
 
     # TEST: In the "List" tab / main screen, clicking on one of the
     # categories in the left column will cause only questions of that
