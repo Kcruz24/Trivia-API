@@ -66,6 +66,9 @@ class Question(db.Model):
             'difficulty': self.difficulty
         }
 
+    def __repr__(self):
+        return f'<id: {self.id}, question: {self.question}>'
+
 
 '''
 Category
