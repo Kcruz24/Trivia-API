@@ -183,6 +183,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(len(data['question']))
 
+    def test_422_if_play_quiz_not_params_correct(self):
+        res = self.client().post('/quizzes', json=self.quiz_question)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Unprocessable Entity')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
