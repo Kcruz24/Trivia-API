@@ -29,6 +29,12 @@ class TriviaTestCase(unittest.TestCase):
             'difficulty': 3
         }
 
+        self.quiz_question = {
+            'previous_questions': [2, 4, 10, 12],
+            'quiz_category': 'Art',
+            'question': self.new_question
+        }
+
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -164,6 +170,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Resource not found')
+
+    # /////////// TEST GET QUESTION TO PLAY QUIZ ////////////
+    def test_play_quiz(self):
+        res = self.client().post('/quizzes', json={
+            "quiz_category": {"type": "History", "id": 4},
+            "previous_questions": [],
+        })
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(len(data['question']))
 
 
 # Make the tests conveniently executable
