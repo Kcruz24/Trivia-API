@@ -1,5 +1,6 @@
 .idea
 venv/
+.env
 frontend/node_modules/
 __pycache__
 markdown-cheat-sheet.md
