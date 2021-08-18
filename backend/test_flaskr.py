@@ -1,10 +1,12 @@
 import json
 import unittest
 
+from decouple import config
 from flask_sqlalchemy import SQLAlchemy
-
 from flaskr import create_app
-from models import setup_db, Question, Category
+from models import setup_db
+
+database_password = config('PASSWORD')
 
 
 class TriviaTestCase(unittest.TestCase):
@@ -17,7 +19,7 @@ class TriviaTestCase(unittest.TestCase):
         self.database_name = "trivia_test"
         self.database_path = "postgresql://{}:{}@{}/{}" \
             .format('postgres',
-                    'Dariel24',
+                    database_password,
                     'localhost:5432',
                     self.database_name)
         setup_db(self.app, self.database_path)
