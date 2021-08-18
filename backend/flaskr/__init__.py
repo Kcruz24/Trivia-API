@@ -61,7 +61,7 @@ def create_app(test_config=None):
                 'categories': formatted_categories,
                 'all_categories': len(categories)
             })
-        except:
+        except():
             abort(500)
 
     # @TODO: Create an endpoint to handle GET requests for questions, including
@@ -165,7 +165,7 @@ def create_app(test_config=None):
                     'total_questions': len(questions.all())
                 })
 
-        except():
+        except:
             abort(422)
 
     # TEST: When you submit a question on the "Add" tab,
@@ -200,7 +200,7 @@ def create_app(test_config=None):
                 'total_questions': len(questions.all()),
                 'current_category': current_category
             })
-        except:
+        except():
             abort(500)
 
     # TEST: In the "List" tab / main screen, clicking on one of the
