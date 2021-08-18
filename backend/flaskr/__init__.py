@@ -1,19 +1,21 @@
-import random
-
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from models import setup_db, Question, Category
+from sqlalchemy import func
 
 QUESTIONS_PER_PAGE = 10
 
 
 def paginate_questions(req, questions):
     page = req.args.get('page', 1, type=int)
-    start = (page - 1) * QUESTIONS_PER_PAGE
-    end = start + QUESTIONS_PER_PAGE
+    items = (page - 1) * QUESTIONS_PER_PAGE
 
-    formatted_questions = [question.format() for question in questions]
-    current_questions = formatted_questions[start:end]
+    limited_questions = questions \
+        .offset(items) \
+        .limit(QUESTIONS_PER_PAGE) \
+        .all()
+
+    current_questions = [question.format() for question in limited_questions]
 
     return current_questions
 
@@ -60,7 +62,7 @@ def create_app(test_config=None):
                 'categories': formatted_categories,
                 'all_categories': len(categories)
             })
-        except:
+        except():
             abort(500)
 
     # @TODO: Create an endpoint to handle GET requests for questions, including
@@ -71,18 +73,19 @@ def create_app(test_config=None):
     @app.route('/questions')
     def get_questions():
         try:
-            questions = Question.query.order_by(Question.id).all()
+            questions = Question.query.order_by(Question.id)
 
-            if len(questions) == 0:
+            if len(questions.all()) == 0:
                 abort(404)
 
             categories = Category.query.order_by(Category.id).all()
+
             current_questions = paginate_questions(request, questions)
             formatted_categories = format_categories(categories)
 
             return jsonify({
                 'success': True,
-                'total_questions': len(questions),
+                'total_questions': len(questions.all()),
                 'questions': current_questions,
                 'categories': formatted_categories,
                 'current_category': None
@@ -104,14 +107,14 @@ def create_app(test_config=None):
             question_id = question.id
             question.delete()
 
-            questions = Question.query.order_by(Question.id).all()
+            questions = Question.query.order_by(Question.id)
             current_questions = paginate_questions(request, questions)
 
             return jsonify({
                 'success': True,
                 'deleted': question_id,
                 'questions': current_questions,
-                'total_questions': len(questions)
+                'total_questions': len(questions.all())
             })
         except:
             abort(422)
@@ -136,14 +139,14 @@ def create_app(test_config=None):
         try:
             if search:
                 questions = Question.query.order_by(Question.id) \
-                    .filter(Question.question.ilike(f'%{search}%')) \
-                    .all()
+                    .filter(Question.question.ilike(f'%{search}%'))
                 current_questions = paginate_questions(request, questions)
 
                 return jsonify({
                     'success': True,
+                    'searchTerm': search,
                     'questions': current_questions,
-                    'total_questions': len(questions)
+                    'total_questions': len(questions.all())
                 })
 
             else:
@@ -153,17 +156,17 @@ def create_app(test_config=None):
                                         difficulty=get_difficulty)
                 new_question.insert()
 
-                questions = Question.query.order_by(Question.id).all()
+                questions = Question.query.order_by(Question.id)
                 current_questions = paginate_questions(request, questions)
 
                 return jsonify({
                     'success': True,
                     'created': new_question.id,
                     'questions': current_questions,
-                    'total_questions': len(questions)
+                    'total_questions': len(questions.all())
                 })
 
-        except():
+        except:
             abort(422)
 
     # TEST: When you submit a question on the "Add" tab,
@@ -184,10 +187,9 @@ def create_app(test_config=None):
         try:
             questions = Question.query \
                 .order_by(Question.id) \
-                .filter(Question.category == category_id) \
-                .all()
+                .filter(Question.category == category_id)
 
-            if len(questions) == 0:
+            if len(questions.all()) == 0:
                 abort(404)
 
             current_questions = paginate_questions(request, questions)
@@ -196,10 +198,10 @@ def create_app(test_config=None):
             return jsonify({
                 'success': True,
                 'questions': current_questions,
-                'total_questions': len(questions),
+                'total_questions': len(questions.all()),
                 'current_category': current_category
             })
-        except:
+        except():
             abort(500)
 
     # TEST: In the "List" tab / main screen, clicking on one of the
@@ -224,18 +226,14 @@ def create_app(test_config=None):
                 quiz_questions = Question.query.all()
             else:
                 quiz_questions = Question.query \
-                    .filter(Question.category == quiz_category['id']) \
+                    .order_by(func.random()) \
+                    .filter(Question.category == quiz_category['id'],
+                            Question.id.not_in(previous_questions)) \
                     .all()
 
             random_question = None
-            rand_list = []
-
-            for question in quiz_questions:
-                if question.id not in previous_questions:
-                    rand_list.append(question.format())
-
-            if len(rand_list) > 0:
-                random_question = random.choice(rand_list)
+            if len(quiz_questions) > 0:
+                random_question = quiz_questions.pop().format()
 
             return jsonify({
                 'success': True,

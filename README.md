@@ -492,6 +492,41 @@ The API will return four error types when requests fail:
       "total_questions": 20
     }
     ```
+  
+#### POST `/questions`
+
+* General:
+  * Returns a list of questions based on a search term, a success value, the 
+  total number of questions, and the search term.
+* Sample: 
+`curl http://localhost:5000/questions 
+-X POST 
+-H "Content-Type: application/json" 
+-d '{"searchTerm": "title"}'`
+
+    ``` js
+    {
+      "questions": [
+        {
+          "answer": "Maya Angelou",
+          "category": 4,
+          "difficulty": 2,
+          "id": 5,
+          "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+        },
+        {
+          "answer": "Edward Scissorhands",
+          "category": 5,
+          "difficulty": 3,
+          "id": 6,
+          "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+        }
+      ],
+      "searchTerm": "title",
+      "success": true,
+      "total_questions": 2
+    }
+    ```
 
 #### POST `/quizzes`
 

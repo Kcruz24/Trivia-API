@@ -4,7 +4,7 @@ import unittest
 from decouple import config
 from flask_sqlalchemy import SQLAlchemy
 from flaskr import create_app
-from models import setup_db
+from models import setup_db, Question
 
 database_password = config('PASSWORD')
 
@@ -62,7 +62,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['all_categories'])
         self.assertTrue(len(data['categories']))
 
-    def test_404_categories(self):
+    def test_404_if_categories_not_found(self):
         res = self.client().get('/categorie')
         data = json.loads(res.data)
 
@@ -92,7 +92,7 @@ class TriviaTestCase(unittest.TestCase):
 
     # /////////////// TEST DELETE QUESTION ///////////////
     # def test_delete_question(self):
-    #     QUESTION_ID = 13
+    #     QUESTION_ID = 65
     #
     #     res = self.client().delete(f'/questions/{QUESTION_ID}')
     #     data = json.loads(res.data)
@@ -121,9 +121,13 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post('/questions', json=self.new_question)
         data = json.loads(res.data)
 
+        question = Question.query \
+            .filter(Question.answer == self.new_question['answer']) \
+            .first()
+
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['created'], 26)
+        self.assertTrue(question)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
 
@@ -146,13 +150,22 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
 
     def test_if_searchTerm_does_not_exist(self):
-        res = self.client().post('/questions', json={'searchTerm': 'title'})
+        SEARCH = 'who'
+        res = self.client().post('/questions', json={'searchTerm': f'{SEARCH}'})
         data = json.loads(res.data)
+
+        questions = Question.query \
+            .order_by(Question.id) \
+            .filter(Question.question.ilike(f'%{SEARCH}%')) \
+            .all()
+
+        format_questions = [question.format() for question in questions]
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['questions'], [])
-        self.assertEqual(len(data['questions']), 0)
+        self.assertEqual(data['questions'], format_questions)
+        self.assertEqual(len(data['questions']), len(questions))
+        self.assertEqual(data['searchTerm'], SEARCH)
 
     # /////////// TEST GET QUESTION BASED ON CATEGORY ////////////
     def test_get_questions_based_on_category(self):
@@ -165,7 +178,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertEqual(data['current_category'], 'Art')
 
-    def test_404_if_category_not_found(self):
+    def test_404_if_selected_category_not_found(self):
         res = self.client().get('/categories/9/questions')
         data = json.loads(res.data)
 
@@ -185,7 +198,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(len(data['question']))
 
-    def test_422_if_play_quiz_not_params_correct(self):
+    def test_422_if_play_quiz_has_incorrect_params(self):
         res = self.client().post('/quizzes', json=self.quiz_question)
         data = json.loads(res.data)
 
