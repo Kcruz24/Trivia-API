@@ -1,6 +1,7 @@
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from models import setup_db, Question, Category
+from sqlalchemy import func
 
 QUESTIONS_PER_PAGE = 10
 
@@ -225,18 +226,14 @@ def create_app(test_config=None):
                 quiz_questions = Question.query.all()
             else:
                 quiz_questions = Question.query \
-                    .filter(Question.category == quiz_category['id']) \
+                    .order_by(func.random()) \
+                    .filter(Question.category == quiz_category['id'],
+                            Question.id.not_in(previous_questions)) \
                     .all()
 
             random_question = None
-            rand_list = []
-
-            for question in quiz_questions:
-                if question.id not in previous_questions:
-                    rand_list.append(question.format())
-
-            if len(rand_list) > 0:
-                random_question = random.choice(rand_list)
+            if len(quiz_questions) > 0:
+                random_question = quiz_questions.pop().format()
 
             return jsonify({
                 'success': True,
