@@ -47,18 +47,21 @@ def create_app(test_config=None):
     #        categories. (DONE)
     @app.route('/categories')
     def get_categories():
-        categories = Category.query.order_by(Category.id).all()
+        try:
+            categories = Category.query.order_by(Category.id).all()
 
-        if len(categories) == 0:
-            abort(404)
+            if len(categories) == 0:
+                abort(404)
 
-        formatted_categories = format_categories(categories)
+            formatted_categories = format_categories(categories)
 
-        return jsonify({
-            'success': True,
-            'categories': formatted_categories,
-            'all_categories': len(categories)
-        })
+            return jsonify({
+                'success': True,
+                'categories': formatted_categories,
+                'all_categories': len(categories)
+            })
+        except:
+            abort(500)
 
     # @TODO: Create an endpoint to handle GET requests for questions, including
     #        pagination (every 10 questions).
@@ -67,22 +70,25 @@ def create_app(test_config=None):
     #        (DONE)
     @app.route('/questions')
     def get_questions():
-        questions = Question.query.order_by(Question.id).all()
+        try:
+            questions = Question.query.order_by(Question.id).all()
 
-        if len(questions) == 0:
-            abort(404)
+            if len(questions) == 0:
+                abort(404)
 
-        categories = Category.query.order_by(Category.id).all()
-        current_questions = paginate_questions(request, questions)
-        formatted_categories = format_categories(categories)
+            categories = Category.query.order_by(Category.id).all()
+            current_questions = paginate_questions(request, questions)
+            formatted_categories = format_categories(categories)
 
-        return jsonify({
-            'success': True,
-            'total_questions': len(questions),
-            'questions': current_questions,
-            'categories': formatted_categories,
-            'current_category': None
-        })
+            return jsonify({
+                'success': True,
+                'total_questions': len(questions),
+                'questions': current_questions,
+                'categories': formatted_categories,
+                'current_category': None
+            })
+        except:
+            abort(500)
 
     # TEST: At this point, when you start the application
     # you should see questions and categories generated,
@@ -99,12 +105,12 @@ def create_app(test_config=None):
             question.delete()
 
             questions = Question.query.order_by(Question.id).all()
-            formatted_questions = paginate_questions(request, questions)
+            current_questions = paginate_questions(request, questions)
 
             return jsonify({
                 'success': True,
                 'deleted': question_id,
-                'questions': formatted_questions,
+                'questions': current_questions,
                 'total_questions': len(questions)
             })
         except:
@@ -174,24 +180,27 @@ def create_app(test_config=None):
 
     # @TODO: Create a GET endpoint to get questions based on category. (DONE)
     @app.route('/categories/<int:category_id>/questions')
-    def test_get_questions_based_on_category(category_id):
-        questions = Question.query \
-            .order_by(Question.id) \
-            .filter(Question.category == category_id) \
-            .all()
+    def get_questions_based_on_category(category_id):
+        try:
+            questions = Question.query \
+                .order_by(Question.id) \
+                .filter(Question.category == category_id) \
+                .all()
 
-        if len(questions) == 0:
-            abort(404)
+            if len(questions) == 0:
+                abort(404)
 
-        current_questions = paginate_questions(request, questions)
-        current_category = Category.query.get(category_id).type
+            current_questions = paginate_questions(request, questions)
+            current_category = Category.query.get(category_id).type
 
-        return jsonify({
-            'success': True,
-            'questions': current_questions,
-            'total_questions': len(questions),
-            'current_category': current_category
-        })
+            return jsonify({
+                'success': True,
+                'questions': current_questions,
+                'total_questions': len(questions),
+                'current_category': current_category
+            })
+        except:
+            abort(500)
 
     # TEST: In the "List" tab / main screen, clicking on one of the
     # categories in the left column will cause only questions of that
@@ -242,6 +251,14 @@ def create_app(test_config=None):
 
     # @TODO: Create error handlers for all expected errors
     #        including 404 and 422. (DONE)
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        return jsonify({
+            'success': False,
+            'error': 500,
+            'message': 'Internal Server Error'
+        }), 500
 
     @app.errorhandler(404)
     def not_found(error):
