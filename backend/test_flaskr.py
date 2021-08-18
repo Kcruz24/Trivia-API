@@ -150,13 +150,22 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
 
     def test_if_searchTerm_does_not_exist(self):
-        res = self.client().post('/questions', json={'searchTerm': 'title'})
+        SEARCH = 'who'
+        res = self.client().post('/questions', json={'searchTerm': f'{SEARCH}'})
         data = json.loads(res.data)
+
+        questions = Question.query \
+            .order_by(Question.id) \
+            .filter(Question.question.ilike(f'%{SEARCH}%')) \
+            .all()
+
+        format_questions = [question.format() for question in questions]
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['questions'], [])
-        self.assertEqual(len(data['questions']), 0)
+        self.assertEqual(data['questions'], format_questions)
+        self.assertEqual(len(data['questions']), len(questions))
+        self.assertEqual(data['searchTerm'], SEARCH)
 
     # /////////// TEST GET QUESTION BASED ON CATEGORY ////////////
     def test_get_questions_based_on_category(self):
