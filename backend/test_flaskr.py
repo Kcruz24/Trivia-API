@@ -62,7 +62,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['all_categories'])
         self.assertTrue(len(data['categories']))
 
-    def test_404_categories(self):
+    def test_404_if_categories_not_found(self):
         res = self.client().get('/categorie')
         data = json.loads(res.data)
 
@@ -165,7 +165,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertEqual(data['current_category'], 'Art')
 
-    def test_404_if_category_not_found(self):
+    def test_404_if_selected_category_not_found(self):
         res = self.client().get('/categories/9/questions')
         data = json.loads(res.data)
 
@@ -185,7 +185,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(len(data['question']))
 
-    def test_422_if_play_quiz_not_params_correct(self):
+    def test_422_if_play_quiz_has_incorrect_params(self):
         res = self.client().post('/quizzes', json=self.quiz_question)
         data = json.loads(res.data)
 
