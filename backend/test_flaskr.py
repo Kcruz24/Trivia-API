@@ -4,7 +4,7 @@ import unittest
 from decouple import config
 from flask_sqlalchemy import SQLAlchemy
 from flaskr import create_app
-from models import setup_db
+from models import setup_db, Question
 
 database_password = config('PASSWORD')
 
@@ -92,7 +92,7 @@ class TriviaTestCase(unittest.TestCase):
 
     # /////////////// TEST DELETE QUESTION ///////////////
     # def test_delete_question(self):
-    #     QUESTION_ID = 13
+    #     QUESTION_ID = 65
     #
     #     res = self.client().delete(f'/questions/{QUESTION_ID}')
     #     data = json.loads(res.data)
@@ -121,9 +121,13 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post('/questions', json=self.new_question)
         data = json.loads(res.data)
 
+        question = Question.query \
+            .filter(Question.answer == self.new_question['answer']) \
+            .first()
+
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['created'], 26)
+        self.assertTrue(question)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
 
