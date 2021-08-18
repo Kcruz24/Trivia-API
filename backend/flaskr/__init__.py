@@ -143,6 +143,7 @@ def create_app(test_config=None):
 
                 return jsonify({
                     'success': True,
+                    'searchTerm': search,
                     'questions': current_questions,
                     'total_questions': len(questions.all())
                 })
