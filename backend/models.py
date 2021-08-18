@@ -1,8 +1,6 @@
-import os
-from sqlalchemy import Column, String, Integer, create_engine
-from flask_sqlalchemy import SQLAlchemy
 from decouple import config
-import json
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, String, Integer
 
 database_password = config('PASSWORD')
 database_name = "trivia"
