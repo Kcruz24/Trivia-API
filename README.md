@@ -528,7 +528,7 @@ The API will return four error types when requests fail:
   updated, and total number of questions updated.
 * Sample: `curl http://localhost:5000/questions/25 -X DELETE`
 
-    ```
+    ``` js
     {
       "deleted": 25,
       "questions": [
