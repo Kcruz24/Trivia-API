@@ -1,10 +1,13 @@
 import os
 from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
+from decouple import config
 import json
 
+database_password = config('PASSWORD')
 database_name = "trivia"
-database_path = "postgresql://{}:{}@{}/{}".format('postgres', 'Dariel24',
+database_path = "postgresql://{}:{}@{}/{}".format('postgres',
+                                                  database_password,
                                                   'localhost:5432',
                                                   database_name)
 
