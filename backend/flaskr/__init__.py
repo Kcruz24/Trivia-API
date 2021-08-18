@@ -1,5 +1,3 @@
-import random
-
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 from models import setup_db, Question, Category
@@ -9,11 +7,14 @@ QUESTIONS_PER_PAGE = 10
 
 def paginate_questions(req, questions):
     page = req.args.get('page', 1, type=int)
-    start = (page - 1) * QUESTIONS_PER_PAGE
-    end = start + QUESTIONS_PER_PAGE
+    items = (page - 1) * QUESTIONS_PER_PAGE
 
-    formatted_questions = [question.format() for question in questions]
-    current_questions = formatted_questions[start:end]
+    limited_questions = questions \
+        .offset(items) \
+        .limit(QUESTIONS_PER_PAGE) \
+        .all()
+
+    current_questions = [question.format() for question in limited_questions]
 
     return current_questions
 
